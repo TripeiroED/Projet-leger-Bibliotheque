@@ -34,7 +34,7 @@ class AuthController extends Controller
             if ($user->role === 'admin') {
                 return redirect()->intended('/admin')->with('success', 'Connecté en tant qu\'admin');
             } else {
-                return redirect()->intended('/profile')->with('success', 'Connecté avec succès');
+                return redirect()->intended('/')->with('success', 'Connecté avec succès');
             }
         }
 
@@ -73,6 +73,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with('success', 'Déconnecté avec succès');
+        return redirect('/')->with('success', 'Déconnecté avec succès');
     }
 }

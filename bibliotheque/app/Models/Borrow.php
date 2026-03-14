@@ -9,24 +9,23 @@ class Borrow extends Model
 {
     use HasFactory;
 
-    // Ajouter ici les colonnes autorisées pour create()
     protected $fillable = [
         'user_id',
         'book_id',
-        'paid',
-        'borrowed_at',   // si tu veux remplir la date manuellement
-        'returned_at'    // idem
+        'borrowed_at',
+        'due_at',
+        'returned_at',
+        'paid'
     ];
 
-    // Optionnel : définir les dates automatiquement
-    protected $dates = ['borrowed_at', 'returned_at'];
-
-    // Relations
-    public function book() {
-        return $this->belongsTo(Book::class);
+    // Relations (optionnel)
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
-    public function user() {
-        return $this->belongsTo(User::class);
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
     }
 }
