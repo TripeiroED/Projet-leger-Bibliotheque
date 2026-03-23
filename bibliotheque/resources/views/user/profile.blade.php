@@ -115,7 +115,7 @@ transform:scale(1.05);
 <a href="{{ url('/') }}">Accueil</a>
 <a href="{{ url('/profile') }}">Profil</a>
 <a href="{{ url('/favorites') }}">Mes favoris</a>
-<a href="{{ url('/history') }}">Historique</a>
+<a href="{{ route('borrows.my') }}">Mes emprunts</a>
 <a href="{{ route('cart') }}">Panier</a>
 <a href="{{ url('/logout') }}">Déconnexion</a>
 @else
@@ -130,17 +130,6 @@ transform:scale(1.05);
 
 <p><strong>Nom :</strong> {{ $user->name }}</p>
 <p><strong>Email :</strong> {{ $user->email }}</p>
-
-<div class="stats">
-<div>
-<strong>{{ $totalBorrowed }}</strong><br>
-Livres empruntés
-</div>
-<div>
-<strong>{{ $toReturn }}</strong><br>
-À rendre
-</div>
-</div>
 
 <a href="{{ url('/profile/edit') }}" class="button">Modifier profil</a>
 

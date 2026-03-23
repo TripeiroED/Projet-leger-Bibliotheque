@@ -93,7 +93,7 @@
             <a href="{{ url('/') }}" class="button">Accueil</a>|
             <a href="{{ url('/profile') }}">Profil</a> |
             <a href="{{ url('/favorites') }}" class="button">Mes favoris</a> |
-            <a href="{{ url('/history') }}">Historique</a> |
+            <a href="{{ route('borrows.my') }}">Mes emprunts</a> |
             <a href="{{ route('cart') }}">Panier</a> |
             <a href="{{ url('/logout') }}">Déconnexion</a>
         @else

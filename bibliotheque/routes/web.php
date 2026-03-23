@@ -27,7 +27,7 @@ Route::get('/logout', [AuthController::class,'logout'])->name('logout');
 // ---------------------------
 // Routes utilisateur (auth)
 // ---------------------------
-Route::middleware('auth')->group(function(){
+Route::middleware('auth','verified')->group(function(){
 
     // Emprunts
     Route::post('/borrow/{book}', [BorrowController::class,'borrow'])->name('borrow.book');
@@ -78,9 +78,13 @@ Route::middleware(['auth','admin'])->prefix('admin')->group(function(){
     ]);
 });
 
+Route::get('/my-borrows', [BorrowController::class, 'myBorrows'])->name('borrows.my');
+Route::post('/borrow/return/{id}', [BorrowController::class, 'returnBook'])
+    ->name('borrow.return');
+
 use App\Http\Controllers\CartController;
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth','verified')->group(function () {
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
 
@@ -95,3 +99,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/borrow', [CartController::class, 'borrow'])->name('cart.borrow');
 
 });
+
+// Page après inscription
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// Lien pour vérifier l'email
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
+    ->middleware(['auth', 'signed'])
+    ->name('verification.verify');
+
+// Renvoyer le mail de vérification
+Route::post('/email/verification-notification', [AuthController::class, 'resend'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.send');
+
+

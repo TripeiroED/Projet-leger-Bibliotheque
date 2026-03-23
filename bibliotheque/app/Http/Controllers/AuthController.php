@@ -56,15 +56,34 @@ class AuthController extends Controller
             'password' => 'required|confirmed|min:6',
         ]);
 
-        User::create([
+        $user =User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'user', // Défaut : utilisateur normal
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         return redirect('/login')->with('success', 'Compte créé avec succès');
     }
+
+    public function verify(Request $request, $id, $hash)
+    {
+        $user = User::findOrFail($id);
+        if (! hash_equals((string) $hash, sha1($user->email))) {
+            abort(403);
+        }
+        $user->markEmailAsVerified();
+        return redirect('/')->with('success', 'Email vérifié !');
+    }
+
+    public function resend(Request $request)
+    {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('success', 'Email de vérification renvoyé !');
+    }
+
 
     // Déconnexion
     public function logout(Request $request)
@@ -76,3 +95,4 @@ class AuthController extends Controller
         return redirect('/')->with('success', 'Déconnecté avec succès');
     }
 }
+

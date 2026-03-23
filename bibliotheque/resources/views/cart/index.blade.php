@@ -35,7 +35,7 @@ button:hover{background:#104e8b;transform:scale(1.05);}
 <a href="{{ url('/') }}">Accueil</a>
 <a href="{{ url('/profile') }}">Profil</a>
 <a href="{{ url('/favorites') }}">Mes favoris</a>
-<a href="{{ url('/history') }}">Historique</a>
+<a href="{{ route('borrows.my') }}">Mes emprunts</a>
 <a href="{{ route('cart') }}">Panier</a>
 <a href="{{ url('/logout') }}">Déconnexion</a>
 @else

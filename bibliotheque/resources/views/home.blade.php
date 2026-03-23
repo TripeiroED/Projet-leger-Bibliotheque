@@ -155,6 +155,31 @@ button:hover{
   display:flex;
   justify-content:center;
   margin-top:20px;
+  .book img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.favorite-icon {
+    background:none;
+    border:none;
+    font-size:1.5rem;
+    cursor:pointer;
+    transition: transform 0.2s;
+    margin-top:5px;
+}
+
+.favorite-icon:hover {
+    transform: scale(1.2);
+}
+
+.favorite-icon.filled {
+    color:#ff4081;
+}
+
 }
 </style>
 </head>
@@ -169,7 +194,7 @@ button:hover{
 <a href="{{ url('/') }}" class="button">Accueil</a>
 <a href="{{ url('/profile') }}">Profil</a>
 <a href="{{ url('/favorites') }}" class="button">Mes favoris</a>
-<a href="{{ url('/history') }}">Historique</a>
+<a href="{{ route('borrows.my') }}">Mes emprunts</a>
 <a href="{{ route('cart') }}">Panier</a>
 <a href="{{ url('/logout') }}">Déconnexion</a>
 @else
@@ -203,6 +228,12 @@ button:hover{
 
 @foreach($books as $book)
 <div class="book">
+<!-- Image du livre -->
+    @if($book->image)
+        <img src="{{ asset('images/books/' . $book->image) }}" alt="{{ $book->title }}" style="width:100%; height:auto; border-radius:10px; margin-bottom:10px;">
+    @else
+        <img src="{{ asset('images/books/default.jpg') }}" alt="Image par défaut" style="width:100%; height:auto; border-radius:10px; margin-bottom:10px;">
+    @endif
 <h3>{{ $book->title }}</h3>
 <p><strong>Auteur :</strong> {{ $book->author }}</p>
 <p>{{ $book->description }}</p>
@@ -222,19 +253,24 @@ button:hover{
 @endif
 
 @auth
-<form method="POST" action="{{ url('/favorite/'.$book->id) }}">
-@csrf
-@if(auth()->user()->favorites && auth()->user()->favorites->contains($book->id))
-<button type="submit" formaction="{{ url('/favorite/remove/'.$book->id) }}" class="favorite-btn remove">Retirer des favoris</button>
-@else
-<button type="submit" class="favorite-btn">Ajouter aux favoris</button>
-@endif
+<form method="POST" action="{{ url('/favorite/'.$book->id) }}" style="display:inline;">
+    @csrf
+    @if(auth()->user()->favorites && auth()->user()->favorites->contains($book->id))
+        <button type="submit" formaction="{{ url('/favorite/remove/'.$book->id) }}" class="favorite-icon filled" title="Retirer des favoris">
+            ❤️
+        </button>
+    @else
+        <button type="submit" class="favorite-icon" title="Ajouter aux favoris">
+            🤍
+        </button>
+    @endif
 </form>
 @else
 <a href="{{ url('/login') }}">
-<button class="favorite-btn">Se connecter pour favoris</button>
+    <button class="favorite-icon" title="Connectez-vous pour favoris">🤍</button>
 </a>
 @endauth
+
 
 </div>
 @endforeach
