@@ -28,9 +28,6 @@
         <label>Nom :</label>
         <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
         
-        <label>Email :</label>
-        <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
-        
         <label>Mot de passe (laisser vide pour ne pas changer) :</label>
         <input type="password" name="password">
         

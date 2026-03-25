@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -15,33 +16,45 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // Connexion
     public function login(Request $request)
-    {
-        // Validation
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $key = 'login-'.$request->ip();
 
-        if (Auth::attempt($credentials)) {
-            // Regénérer la session pour sécurité
-            $request->session()->regenerate();
-
-            $user = Auth::user();
-
-            // 🔹 Redirection selon le rôle
-            if ($user->role === 'admin') {
-                return redirect()->intended('/admin')->with('success', 'Connecté en tant qu\'admin');
-            } else {
-                return redirect()->intended('/')->with('success', 'Connecté avec succès');
-            }
-        }
-
-        return back()->with('error', 'Email ou mot de passe incorrect');
+    if (RateLimiter::tooManyAttempts($key, 5)) {
+        return back()->with('error', 'Trop de tentatives. Réessaie dans 1 minute.');
     }
 
-    // Afficher le formulaire d'inscription
+    // Validation
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (Auth::attempt($credentials)) {
+        RateLimiter::clear($key);
+
+        // sécurité session
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        if ($user->role !== 'admin' && !$user->hasVerifiedEmail()) {
+            Auth::logout();
+            return back()->with('error', 'Veuillez vérifier votre email avant de vous connecter.');
+        }
+
+        if ($user->role === 'admin') {
+            return redirect()->intended('/admin')->with('success', 'Connecté en tant qu\'admin');
+        }
+
+        return redirect()->intended('/')->with('success', 'Connecté avec succès');
+    }
+
+    RateLimiter::hit($key, 60);
+
+    return back()->with('error', 'Email ou mot de passe incorrect');
+}
+
     public function showRegister()
     {
         return view('auth.register');
@@ -84,8 +97,6 @@ class AuthController extends Controller
         return back()->with('success', 'Email de vérification renvoyé !');
     }
 
-
-    // Déconnexion
     public function logout(Request $request)
     {
         Auth::logout();
@@ -95,4 +106,3 @@ class AuthController extends Controller
         return redirect('/')->with('success', 'Déconnecté avec succès');
     }
 }
-

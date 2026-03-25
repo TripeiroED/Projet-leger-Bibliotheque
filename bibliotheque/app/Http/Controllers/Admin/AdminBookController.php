@@ -58,7 +58,7 @@ class AdminBookController extends Controller
             'available'=>'required|boolean',
         ]);
 
-        $book->update($request->all());
+        $book->update($request->only(['title', 'author', 'description', 'price', 'available']));
         return redirect()->route('books.index')->with('success','Livre mis à jour avec succès');
     }
 

@@ -153,9 +153,8 @@ button:hover{
 <tr>
 <td>{{ $borrow->book->title }}</td>
 
-<td>{{ $borrow->borrowed_at }}</td>
-
-<td>{{ $borrow->due_at }}</td>
+<td>{{ $borrow->borrowed_at ? $borrow->borrowed_at->format('d/m/Y H:i') : '-' }}</td>
+<td>{{ $borrow->due_at ? $borrow->due_at->format('d/m/Y H:i') : '-' }}</td>
 
 <td>
 @php $now = now(); @endphp
@@ -167,7 +166,12 @@ button:hover{
 Retard de {{ $borrow->due_at->diffInDays($now) }} jour(s)
 </span>
 @else
-{{ $now->diffInHours($borrow->due_at) }} h restantes
+@php
+    $totalMinutes = $now->diffInMinutes($borrow->due_at);
+    $hours = floor($totalMinutes / 60); // heures entières
+    $minutes = $totalMinutes % 60;     // reste en minutes
+@endphp
+{{ $hours }} h {{ $minutes }} min restantes
 @endif
 </td>
 

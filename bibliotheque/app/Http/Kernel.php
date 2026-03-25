@@ -9,6 +9,7 @@ class Kernel extends HttpKernel
     // Middlewares globaux
     protected $middleware = [
         // tu peux laisser vide ou ajouter seulement ceux nécessaires
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 
     // Middleware de groupe

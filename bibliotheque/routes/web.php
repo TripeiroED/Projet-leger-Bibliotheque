@@ -7,6 +7,7 @@ use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminBookController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\CartController;
 
 // ---------------------------
 // Accueil
@@ -25,9 +26,9 @@ Route::post('/register', [AuthController::class,'register']);
 Route::get('/logout', [AuthController::class,'logout'])->name('logout');
 
 // ---------------------------
-// Routes utilisateur (auth)
+// Routes utilisateur (auth + email verified)
 // ---------------------------
-Route::middleware('auth','verified')->group(function(){
+Route::middleware(['auth','verified'])->group(function(){
 
     // Emprunts
     Route::post('/borrow/{book}', [BorrowController::class,'borrow'])->name('borrow.book');
@@ -45,6 +46,14 @@ Route::middleware('auth','verified')->group(function(){
 
     // Toggle favori depuis liste livres
     Route::post('/favorite/{book}', [BookController::class, 'toggleFavorite'])->name('books.toggleFavorite');
+
+    // Panier
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add/{book}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{cart}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/pay', [CartController::class, 'pay'])->name('cart.pay');
+    Route::post('/cart/borrow', [CartController::class, 'borrow'])->name('cart.borrow');
 });
 
 // ---------------------------
@@ -78,41 +87,35 @@ Route::middleware(['auth','admin'])->prefix('admin')->group(function(){
     ]);
 });
 
-Route::get('/my-borrows', [BorrowController::class, 'myBorrows'])->name('borrows.my');
-Route::post('/borrow/return/{id}', [BorrowController::class, 'returnBook'])
-    ->name('borrow.return');
+use App\Http\Controllers\Admin\AdminBorrowController;
 
-use App\Http\Controllers\CartController;
+Route::middleware(['auth','admin'])->prefix('admin')->group(function(){
 
-Route::middleware('auth','verified')->group(function () {
+    // Dashboard
+    Route::get('/', [AdminController::class,'dashboard'])->name('admin.dashboard');
 
-    Route::get('/cart', [CartController::class, 'index'])->name('cart');
-
-    Route::post('/cart/add/{book}', [CartController::class, 'add'])->name('cart.add');
-
-    Route::post('/cart/update/{cart}', [CartController::class, 'update'])->name('cart.update'); // <-- ajout
-
-    Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])->name('cart.remove');
-
-    Route::post('/cart/pay', [CartController::class, 'pay'])->name('cart.pay');
-
-    Route::post('/cart/borrow', [CartController::class, 'borrow'])->name('cart.borrow');
-
+    // Emprunts admin
+    Route::get('/borrows', [AdminBorrowController::class,'index'])->name('admin.borrows');
 });
 
-// Page après inscription
+// ---------------------------
+// Lien pour mes emprunts (auth)
+// ---------------------------
+Route::get('/my-borrows', [BorrowController::class, 'myBorrows'])->name('borrows.my');
+Route::post('/borrow/return/{id}', [BorrowController::class, 'returnBook'])->name('borrow.return');
+
+// ---------------------------
+// Email verification
+// ---------------------------
 Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
-// Lien pour vérifier l'email
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     ->middleware(['auth', 'signed'])
     ->name('verification.verify');
 
-// Renvoyer le mail de vérification
 Route::post('/email/verification-notification', [AuthController::class, 'resend'])
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
-
 

@@ -127,7 +127,6 @@ class BorrowController extends Controller
             'password' => 'nullable|confirmed|min:6',
         ]);
 
-        // ✅ version propre sans fill()
         $user->name = $request->name;
         $user->email = $request->email;
 
