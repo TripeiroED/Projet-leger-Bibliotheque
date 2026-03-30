@@ -92,7 +92,7 @@ form button:hover { background:#104e8b; }
     <button type="submit">Mettre à jour</button>
 </form>
 
-<a href="{{ route('books.index') }}" style="display:inline-block;margin-top:20px;color:#1e90ff;">← Retour à la liste</a>
+<a href="{{ route('admin.dashboard') }}" style="display:inline-block;margin-top:20px;color:#1e90ff;">← Retour à la liste</a>
 </div>
 
 </body>

@@ -100,10 +100,8 @@
     <div class="sidebar">
         <h2>Admin</h2>
         <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <a href="{{ route('books.index') }}">Livres</a>
         <a href="{{ route('users.index') }}">Utilisateurs</a>
         <a href="#">Emprunts</a>
-        <a href="#">Favoris</a>
         <a href="{{ route('logout') }}">Déconnexion</a>
     </div>
 

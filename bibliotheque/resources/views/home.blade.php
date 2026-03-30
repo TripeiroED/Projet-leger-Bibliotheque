@@ -150,11 +150,41 @@ button:hover{
   background:#444;
 }
 
-.pagination{
-  grid-column:1/-1;
-  display:flex;
-  justify-content:center;
-  margin-top:20px;
+.pagination {
+    grid-column:1/-1;
+    display:flex;
+    justify-content:center;
+    margin-top:30px;
+    gap:8px;
+}
+
+.page {
+    padding:8px 12px;
+    background:white;
+    border-radius:6px;
+    text-decoration:none;
+    color:#1e90ff;
+    font-weight:bold;
+    border:1px solid #ddd;
+    transition:0.3s;
+}
+
+.page:hover {
+    background:#1e90ff;
+    color:white;
+}
+
+.page.active {
+    background:#1e90ff;
+    color:white;
+    border-color:#1e90ff;
+}
+
+.page.disabled {
+    opacity:0.4;
+    pointer-events:none;
+}
+
   .book img {
     width: 100%;
     height: 200px;
@@ -180,7 +210,6 @@ button:hover{
     color:#ff4081;
 }
 
-}
 </style>
 </head>
 
@@ -277,8 +306,34 @@ button:hover{
 
 @if(method_exists($books,'links'))
 <div class="pagination">
-{{ $books->links() }}
+    @if ($books->hasPages())
+
+        {{-- Bouton précédent --}}
+        @if ($books->onFirstPage())
+            <span class="page disabled">«</span>
+        @else
+            <a href="{{ $books->previousPageUrl() }}" class="page">«</a>
+        @endif
+
+        {{-- Numéros --}}
+        @foreach ($books->getUrlRange(1, $books->lastPage()) as $page => $url)
+            @if ($page == $books->currentPage())
+                <span class="page active">{{ $page }}</span>
+            @else
+                <a href="{{ $url }}" class="page">{{ $page }}</a>
+            @endif
+        @endforeach
+
+        {{-- Bouton suivant --}}
+        @if ($books->hasMorePages())
+            <a href="{{ $books->nextPageUrl() }}" class="page">»</a>
+        @else
+            <span class="page disabled">»</span>
+        @endif
+
+    @endif
 </div>
+
 @endif
 
 </div>
