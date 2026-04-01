@@ -89,15 +89,15 @@
     <h1>Bibliothèque en ligne</h1>
     <nav>
         @auth
-            <span>Connecté : {{ auth()->user()->name }}</span> |
-            <a href="{{ url('/') }}" class="button">Accueil</a>|
-            <a href="{{ url('/profile') }}">Profil</a> |
-            <a href="{{ url('/favorites') }}" class="button">Mes favoris</a> |
-            <a href="{{ route('borrows.my') }}">Mes emprunts</a> |
-            <a href="{{ route('cart') }}">Panier</a> |
+            <span>Connecté : {{ auth()->user()->name }}</span>
+            <a href="{{ url('/') }}" class="button">Accueil</a>
+            <a href="{{ url('/profile') }}">Profil</a>
+            <a href="{{ url('/favorites') }}" class="button">Mes favoris</a>
+            <a href="{{ route('borrows.my') }}">Mes emprunts</a>
+            <a href="{{ route('cart') }}">Panier</a>
             <a href="{{ url('/logout') }}">Déconnexion</a>
         @else
-            <a href="{{ url('/login') }}">Connexion</a> |
+            <a href="{{ url('/login') }}">Connexion</a>
             <a href="{{ url('/register') }}">Inscription</a>
         @endauth
     </nav>

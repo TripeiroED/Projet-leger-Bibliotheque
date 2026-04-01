@@ -15,30 +15,39 @@ class BorrowController extends Controller
     // Emprunter un livre
     // -------------------------------
     public function borrow(Request $request, $book_id)
-    {
-        $book = Book::findOrFail($book_id);
+{
+    $book = Book::findOrFail($book_id);
 
-        if (!$book->available) {
-            return back()->with('error', 'Livre non disponible');
-        }
+    // Quantité demandée (par défaut 1 si rien envoyé)
+    $qty = max(1, intval($request->quantity ?? 1));
 
-        if (!$request->has('paid') || $request->paid != 'true') {
-            return back()->with('error', 'Veuillez payer pour emprunter le livre.');
-        }
-
-        Borrow::create([
-            'user_id' => Auth::id(),
-            'book_id' => $book->id,
-            'paid' => true,
-            'borrowed_at' => now(),
-            'due_at' => now()->addDays(14),
-        ]);
-
-        $book->available -= 1;
-        $book->save();
-
-        return back()->with('success', 'Livre payé et emprunté !');
+    // Vérifie la disponibilité
+    if ($qty > $book->available) {
+        return back()->with('error', "Impossible d'emprunter « {$book->title} » : stock insuffisant (disponible : {$book->available}).");
     }
+
+    // Vérifie le paiement
+    if (!$request->has('paid') || $request->paid != 'true') {
+        return back()->with('error', 'Veuillez payer pour emprunter le livre.');
+    }
+
+    // Crée l'emprunt avec la bonne quantité
+    Borrow::create([
+        'user_id' => Auth::id(),
+        'book_id' => $book->id,
+        'quantity' => $qty,
+        'paid' => true,
+        'borrowed_at' => now(),
+        'due_at' => now()->addDays(14), // 14 jours max
+    ]);
+
+    // Met à jour le stock du livre
+    $book->available -= $qty;
+    $book->save();
+
+    return back()->with('success', "Vous avez emprunté {$qty} exemplaire(s) de « {$book->title} » !");
+}
+
 
     // -------------------------------
     // Mes emprunts
@@ -50,7 +59,11 @@ class BorrowController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('borrows.index', compact('borrows'));
+            // Total des livres empruntés depuis l'inscription
+        $totalBorrowed = Borrow::where('user_id', Auth::id())
+            ->sum('quantity');
+
+        return view('borrows.index', compact('borrows', 'totalBorrowed'));
     }
 
     // -------------------------------
@@ -72,7 +85,7 @@ class BorrowController extends Controller
         $borrow->save();
 
         $book = $borrow->book;
-        $book->available += 1;
+        $book->available += $borrow->quantity; // <- ajoute la quantité réelle
         $book->save();
 
         return back()->with('success', 'Livre rendu avec succès !');
@@ -99,14 +112,26 @@ class BorrowController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        $totalBorrowed = Borrow::where('user_id', $user->id)->count();
+        // Quantité totale empruntée depuis l'inscription (somme de toutes les colonnes 'quantity')
+        $totalBorrowed = Borrow::where('user_id', $user->id)
+            ->sum('quantity');
 
+        // Quantité de livres encore à rendre
         $toReturn = Borrow::where('user_id', $user->id)
             ->whereNull('returned_at')
-            ->count();
+            ->sum('quantity');
 
-        return view('user.profile', compact('user', 'totalBorrowed', 'toReturn'));
+        // Quantité empruntée par livre
+        $booksBorrowed = Borrow::where('user_id', $user->id)
+            ->with('book')
+            ->select('book_id')
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->groupBy('book_id')
+            ->get();
+
+        return view('user.profile', compact('user', 'totalBorrowed', 'toReturn', 'booksBorrowed'));
     }
+
 
     // -------------------------------
     // Edit profil

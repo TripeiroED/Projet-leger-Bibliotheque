@@ -11,19 +11,20 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+    // Afficher le panier
     public function index()
     {
         $user = Auth::user();
-
         $cartItems = Cart::where('user_id', $user->id)
             ->with('book')
             ->get();
 
         $total = $cartItems->sum(fn($item) => $item->book->price * $item->quantity);
 
-        return view('cart.index', compact('cartItems','total'));
+        return view('cart.index', compact('cartItems', 'total'));
     }
 
+    // Ajouter un livre au panier
     public function add(Book $book)
     {
         $user = Auth::user();
@@ -33,17 +34,16 @@ class CartController extends Controller
             ['quantity' => 0]
         );
 
-        // Vérifie la disponibilité
-        if($cart->quantity < $book->available){
+        if ($cart->quantity < $book->available) {
             $cart->quantity += 1;
             $cart->save();
-
             return response()->json(['success' => true, 'message' => 'Livre ajouté au panier']);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Stock insuffisant']);
         }
+
+        return response()->json(['success' => false, 'message' => 'Stock insuffisant']);
     }
 
+    // Mettre à jour la quantité
     public function update(Request $request, $id)
     {
         $cart = Cart::where('id', $id)
@@ -51,67 +51,70 @@ class CartController extends Controller
             ->firstOrFail();
 
         $qty = max(1, intval($request->quantity));
-        $cart->quantity = min($qty, $cart->book->available);
-        $cart->save();
 
-        return back()->with('success','Quantité mise à jour');
-    }
-
-    public function remove($id)
-    {
-        Cart::where('id',$id)
-            ->where('user_id',Auth::id())
-            ->delete();
-
-        return back()->with('success','Livre retiré du panier');
-    }
-
-    public function pay()
-    {
-        $user = Auth::user();
-        $cartItems = Cart::where('user_id', $user->id)->with('book')->get();
-
-        foreach ($cartItems as $item) {
-            $book = $item->book;
-            $book->available -= $item->quantity;
-            $book->save();
+        if ($qty > $cart->book->available) {
+            return back()->with('error', "Impossible de mettre plus de {$cart->book->available} exemplaire(s) pour '{$cart->book->title}'.");
         }
 
-        Cart::where('user_id', $user->id)->delete();
+        $cart->quantity = $qty;
+        $cart->save();
 
-        return redirect('/')->with('success','Paiement effectué !');
+        return back()->with('success', 'Quantité mise à jour');
     }
 
-public function borrow()
+    // Supprimer un livre du panier
+    public function remove($id)
+    {
+        Cart::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->delete();
+
+        return back()->with('success', 'Livre retiré du panier');
+    }
+
+    // Emprunter tous les livres du panier
+    public function borrow(Request $request)
 {
     $user = Auth::user();
-
-    $cartItems = Cart::where('user_id', $user->id)->get();
+    $cartItems = Cart::where('user_id', $user->id)->with('book')->get();
+    $quantities = $request->input('quantities', []);
 
     if ($cartItems->isEmpty()) {
         return redirect()->route('cart')->with('error', 'Votre panier est vide.');
     }
 
     foreach ($cartItems as $item) {
+        $book = $item->book;
+
+        // Récupère la quantité du formulaire ou 1 par défaut
+        $qty = intval($quantities[$item->id] ?? 1);
+        $qty = max(1, $qty);
+
+        if ($qty > $book->available) {
+            return redirect()->route('cart')->with(
+                'error',
+                "Impossible d'emprunter « {$book->title} » : quantité dépasse le stock disponible ({$book->available})."
+            );
+        }
+
+        // Création de l'emprunt
         Borrow::create([
             'user_id' => $user->id,
-            'book_id' => $item->book_id,
+            'book_id' => $book->id,
+            'quantity' => $qty,
             'borrowed_at' => now(),
-            'due_at' => Carbon::now()->addDay(), // 1 jour max
+            'due_at' => now()->addDay(),
         ]);
 
-        // réduire la disponibilité du livre
-        $book = $item->book;
-        if ($book->available > 0) {
-            $book->available -= $item->quantity;
-            $book->save();
-        }
+        // Décrémenter le stock
+        $book->available -= $qty;
+        $book->save();
     }
 
-    // vider le panier après emprunt
+    // Vide le panier
     Cart::where('user_id', $user->id)->delete();
 
-    return redirect('/')->with('success', 'Livres empruntés avec succès ! Vous devez les rendre dans 1 jour.');
+    return redirect('/')->with('success', 'Livres empruntés avec succès !');
 }
 
 }

@@ -141,6 +141,7 @@ button:hover{
 <table>
 <tr>
 <th>Livre</th>
+<th>Quantité</th>
 <th>Date emprunt</th>
 <th>Date retour</th>
 <th>Temps restant</th>
@@ -152,7 +153,7 @@ button:hover{
 
 <tr>
 <td>{{ $borrow->book->title }}</td>
-
+<td>{{ $borrow->quantity }}</td>
 <td>{{ $borrow->borrowed_at ? $borrow->borrowed_at->format('d/m/Y H:i') : '-' }}</td>
 <td>{{ $borrow->due_at ? $borrow->due_at->format('d/m/Y H:i') : '-' }}</td>
 

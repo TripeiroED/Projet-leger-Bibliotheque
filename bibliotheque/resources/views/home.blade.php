@@ -6,7 +6,6 @@
 <title>Bibliothèque en ligne</title>
 
 <style>
-/* === Styles identiques à ton ancien CSS === */
 *{
   margin:0;
   padding:0;

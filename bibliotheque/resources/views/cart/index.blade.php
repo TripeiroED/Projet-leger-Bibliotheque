@@ -70,11 +70,12 @@ button:hover{background:#104e8b;transform:scale(1.05);}
 <td>{{ $item->book->title }}</td>
 <td>{{ $item->book->price }} €</td>
 <td>
-<form method="POST" action="{{ route('cart.update', $item->id) }}">
-@csrf
-<input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ $item->book->available }}">
-<button type="submit">Modifier</button>
-</form>
+<input type="number"
+       name="quantity-{{ $item->id }}"
+       value="{{ $item->quantity }}"
+       min="1"
+       max="{{ $item->book->available }}"
+       oninput="if(this.value > this.max) this.value = this.max;">
 </td>
 <td>
 <form method="POST" action="{{ route('cart.remove',$item->id) }}">
@@ -93,20 +94,76 @@ Total : {{ $total }} €
 </div>
 
 <div class="pay">
-    <!-- Formulaire paiement -->
-    <form method="POST" action="{{ route('cart.pay') }}" style="display:inline-block;">
-        @csrf
-        <button type="submit">Payer</button>
-    </form>
+<!-- Formulaire paiement -->
+<form method="POST" action="{{ route('cart.pay') }}" style="display:inline-block;">
+    @csrf
+    <button type="submit">Payer</button>
+</form>
 
-    <!-- Formulaire emprunt -->
-    <form method="POST" action="{{ route('cart.borrow') }}" style="display:inline-block;">
-        @csrf
-        <button type="submit">Emprunter (1 jour max)</button>
-    </form>
+<!-- Formulaire emprunt -->
+<form id="borrow-form" method="POST" action="{{ route('cart.borrow') }}" style="display:inline-block;">
+    @csrf
+    @foreach($cartItems as $item)
+        <input type="hidden" name="quantities[{{ $item->id }}]" id="quantity-hidden-{{ $item->id }}" value="{{ $item->quantity }}">
+    @endforeach
+    <button type="submit">Emprunter (1 jour max)</button>
+</form>
 </div>
 
 </div>
+
+<script>
+// IDs du panier en JS (tableau pur)
+const cartItems = @json($cartItems->pluck('id')->all());
+
+// Fonction pour valider et mettre à jour la quantité
+function updateQuantity(id) {
+    const inputVisible = document.querySelector(`input[name="quantity-${id}"]`);
+    const inputHidden  = document.getElementById(`quantity-hidden-${id}`);
+
+    let value = parseInt(inputVisible.value);
+    const min = parseInt(inputVisible.min);
+    const max = parseInt(inputVisible.max);
+
+    if (isNaN(value) || value < min) {
+        value = min;
+    } else if (value > max) {
+        value = max;
+    }
+
+    inputVisible.value = value; // met à jour l'input visible
+    inputHidden.value  = value; // met à jour l'input caché
+}
+
+// Attache un listener sur chaque input visible
+cartItems.forEach(id => {
+    const inputVisible = document.querySelector(`input[name="quantity-${id}"]`);
+    inputVisible.addEventListener('input', () => updateQuantity(id));
+});
+
+// Avant l'envoi du formulaire, vérifie toutes les quantités
+document.getElementById('borrow-form').addEventListener('submit', function(e) {
+    let errors = [];
+
+    cartItems.forEach(id => {
+        updateQuantity(id); // assure que hidden = visible
+        const inputVisible = document.querySelector(`input[name="quantity-${id}"]`);
+        const value = parseInt(inputVisible.value);
+        const min = parseInt(inputVisible.min);
+        const max = parseInt(inputVisible.max);
+
+        if (value < min || value > max) {
+            errors.push(`Le livre #${id} doit avoir une quantité entre ${min} et ${max}.`);
+        }
+    });
+
+    if (errors.length > 0) {
+        e.preventDefault(); // stop formulaire
+        alert(errors.join("\n"));
+    }
+});
+</script>
+
 
 </body>
 </html>
