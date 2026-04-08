@@ -31,16 +31,34 @@ class AdminBookController extends Controller
     // Enregistrement nouveau livre
     public function store(Request $request)
     {
+        // Validation
         $request->validate([
-            'title'=>'required|string|max:255',
-            'author'=>'required|string|max:255',
-            'price'=>'required|numeric|min:0',
-            'available'=>'required|boolean',
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'available' => 'required|integer|min:0', // quantité
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        Book::create($request->all());
-        return redirect()->route('books.index')->with('success','Livre ajouté avec succès');
+        // Upload image
+        $imagePath = $request->hasFile('image') 
+            ? $request->file('image')->store('books', 'public') 
+            : null;
+
+        // Création du livre
+        Book::create([
+            'title' => $request->title,
+            'author' => $request->author,
+            'description' => $request->description,
+            'price' => $request->price,
+            'available' => $request->available, // quantité choisie
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->route('books.index')->with('success', 'Livre ajouté avec succès !');
     }
+
 
     // Formulaire édition
     public function edit(Book $book)
@@ -55,7 +73,7 @@ class AdminBookController extends Controller
             'title'=>'required|string|max:255',
             'author'=>'required|string|max:255',
             'price'=>'required|numeric|min:0',
-            'available'=>'required|boolean',
+            'available' => 'required|integer|min:0', // quantité
         ]);
 
         $book->update($request->only(['title', 'author', 'description', 'price', 'available']));

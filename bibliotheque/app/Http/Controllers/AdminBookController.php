@@ -19,9 +19,34 @@ class AdminBookController extends Controller
     }
 
     // Ajouter un livre
-    public function store(Request $r) {
-        Book::create($r->only('title','author','description','price') + ['available'=>1]);
-        return redirect()->route('books.index')->with('success', 'Livre ajouté !');
+    public function store(Request $request)
+    {
+        // Validation
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'available' => 'required|integer|min:0', // quantité
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // Upload image
+        $imagePath = $request->hasFile('image') 
+            ? $request->file('image')->store('books', 'public') 
+            : null;
+
+        // Création du livre
+        Book::create([
+            'title' => $request->title,
+            'author' => $request->author,
+            'description' => $request->description,
+            'price' => $request->price,
+            'available' => $request->available, // quantité choisie
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->route('books.index')->with('success', 'Livre ajouté avec succès !');
     }
 
     // Formulaire édition

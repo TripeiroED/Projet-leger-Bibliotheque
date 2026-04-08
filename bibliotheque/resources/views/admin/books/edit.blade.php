@@ -46,8 +46,9 @@ form button:hover { background:#104e8b; }
 <div class="sidebar">
     <h2>Admin</h2>
     <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-    <a href="{{ route('books.index') }}">Livres</a>
     <a href="{{ route('users.index') }}">Utilisateurs</a>
+    <a href="{{ route('books.index') }}">Livres</a>
+    <a href="{{ route('admin.borrows') }}">Emprunts</a>
     <a href="{{ route('logout') }}">Déconnexion</a>
 </div>
 
@@ -83,16 +84,15 @@ form button:hover { background:#104e8b; }
     <label>Prix (€) :</label>
     <input type="number" step="0.01" name="price" value="{{ old('price', $book->price) }}" required>
 
-    <label>Disponible :</label>
-    <select name="available">
-        <option value="1" {{ $book->available ? 'selected' : '' }}>Oui</option>
-        <option value="0" {{ !$book->available ? 'selected' : '' }}>Non</option>
-    </select>
-
+    <label>Quantité disponible :</label>
+    <input type="number" name="available" min="0" value="{{ old('available', $book->available) }}" required>
     <button type="submit">Mettre à jour</button>
 </form>
 
-<a href="{{ route('admin.dashboard') }}" style="display:inline-block;margin-top:20px;color:#1e90ff;">← Retour à la liste</a>
+<a href="{{ url()->previous() }}" 
+        style="display:inline-block; margin-top:20px; padding:10px 20px; background:#ccc; color:#000; border-radius:5px; text-decoration:none;">
+        Retour
+        </a>
 </div>
 
 </body>

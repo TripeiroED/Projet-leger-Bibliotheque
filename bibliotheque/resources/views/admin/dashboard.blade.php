@@ -53,6 +53,7 @@ tr:hover{background:#e6f0ff;}
     <h2>Admin</h2>
     <a href="{{ route('admin.dashboard') }}">Dashboard</a>
     <a href="{{ route('users.index') }}">Utilisateurs</a>
+    <a href="{{ route('books.index') }}">Livres</a>
     <a href="{{ route('admin.borrows') }}">Emprunts</a>
     <a href="{{ route('logout') }}">Déconnexion</a>
 </div>
@@ -91,6 +92,7 @@ tr:hover{background:#e6f0ff;}
     <th>ID</th>
     <th>Titre</th>
     <th>Auteur</th>
+    <th>Quantité</th>
     <th>Prix</th>
     <th>Actions</th>
 </tr>
@@ -101,6 +103,7 @@ tr:hover{background:#e6f0ff;}
     <td>{{ $book->id }}</td>
     <td>{{ $book->title }}</td>
     <td>{{ $book->author }}</td>
+    <td>{{ $book->available}}</td>
     <td>{{ $book->price }} €</td>
     <td>
         <a href="{{ route('books.edit', $book->id) }}" class="button">Éditer</a>

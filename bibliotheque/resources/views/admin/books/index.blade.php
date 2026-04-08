@@ -101,7 +101,8 @@
         <h2>Admin</h2>
         <a href="{{ route('admin.dashboard') }}">Dashboard</a>
         <a href="{{ route('users.index') }}">Utilisateurs</a>
-        <a href="#">Emprunts</a>
+        <a href="{{ route('books.index') }}">Livres</a>
+        <a href="{{ route('admin.borrows') }}">Emprunts</a>
         <a href="{{ route('logout') }}">Déconnexion</a>
     </div>
 
@@ -117,21 +118,13 @@
                 <h2>{{ $bookCount }}</h2>
                 <p>Total Livres</p>
             </div>
-            <div class="card">
-                <h2>{{ $availableBooks }}</h2>
-                <p>Livres Disponibles</p>
-            </div>
-            <div class="card">
-                <h2>{{ $borrowedBooks }}</h2>
-                <p>Livres Empruntés</p>
-            </div>
         </div>
-
-        {{-- Ajouter un livre --}}
-        <a href="{{ route('books.create') }}" class="button">Ajouter un livre</a>
 
         {{-- Tous les livres --}}
         <h2 class="section-title">Tous les Livres</h2>
+
+        {{-- Ajouter un livre --}}
+        <a href="{{ route('books.create') }}" class="button">Ajouter un livre</a>
         <table>
             <thead>
                 <tr>
@@ -139,7 +132,7 @@
                     <th>Titre</th>
                     <th>Auteur</th>
                     <th>Prix</th>
-                    <th>Disponible</th>
+                    <th>Quantité</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -150,7 +143,7 @@
                     <td>{{ $book->title }}</td>
                     <td>{{ $book->author }}</td>
                     <td>{{ $book->price }} €</td>
-                    <td>{{ $book->available ? 'Oui' : 'Non' }}</td>
+                    <td>{{ $book->available}}</td>
                     <td class="actions">
                         <a href="{{ route('books.edit', $book->id) }}" class="button">Éditer</a>
                         <form action="{{ route('books.destroy', $book->id) }}" method="POST" style="display:inline;">
@@ -167,32 +160,6 @@
                 @endforelse
             </tbody>
         </table>
-
-        {{-- Livres récents --}}
-        <h2 class="section-title">Livres récents</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Titre</th>
-                    <th>Auteur</th>
-                    <th>Prix</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($recentBooks as $book)
-                <tr>
-                    <td>{{ $book->id }}</td>
-                    <td>{{ $book->title }}</td>
-                    <td>{{ $book->author }}</td>
-                    <td>{{ $book->price }} €</td>
-                </tr>
-                @empty
-                <tr><td colspan="4" style="text-align:center; color:#777;">Aucun livre récent</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-
     </div>
 
 </body>

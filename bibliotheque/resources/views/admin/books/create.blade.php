@@ -30,7 +30,7 @@
     </div>
     @endif
 
-    <form action="{{ route('books.store') }}" method="POST">
+    <form action="{{ route('books.store') }}" method="POST"enctype="multipart/form-data">
         @csrf
 
         <label>Titre</label>
@@ -45,13 +45,18 @@
         <label>Prix (€)</label>
         <input type="number" step="0.01" name="price" value="{{ old('price') }}" required>
 
-        <label>Disponible ?</label>
-        <select name="available">
-            <option value="1" {{ old('available') == 1 ? 'selected' : '' }}>Oui</option>
-            <option value="0" {{ old('available') == 0 ? 'selected' : '' }}>Non</option>
-        </select>
+        <label>Nombre disponible</label>
+        <input type="number" name="available" min="0" value="{{ old('available', 0) }}" required>
+
+        <label>Image</label>
+        <input type="file" name="image">
 
         <button type="submit">Ajouter le livre</button>
+        <a href="{{ url()->previous() }}" 
+        style="display:inline-block; margin-top:20px; padding:10px 20px; background:#ccc; color:#000; border-radius:5px; text-decoration:none;">
+        Annuler / Retour
+        </a>
+
     </form>
 </div>
 

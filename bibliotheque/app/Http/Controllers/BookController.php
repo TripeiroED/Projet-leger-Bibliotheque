@@ -26,7 +26,7 @@ class BookController extends Controller
             if ($request->sort == 'title') $query->orderBy('title', 'asc');
         }
 
-        $books = $query->paginate(6);
+        $books = $query->paginate(8);
 
         return view('home', compact('books'));
     }
@@ -46,5 +46,38 @@ public function toggleFavorite($book_id)
         return back()->with('success', 'Livre ajouté aux favoris !');
     }
 }
+
+public function store(Request $request)
+{
+    //  Validation
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'author' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric|min:0',
+        'available' => 'required|integer|min:0', // quantité
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    //  Upload image
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('books', 'public');
+    } else {
+        $imagePath = null;
+    }
+
+    //  Création du livre
+    Book::create([
+        'title' => $request->title,
+        'author' => $request->author,
+        'description' => $request->description,
+        'price' => $request->price,
+        'available' => $request->available, // quantité choisie
+        'image' => $imagePath,
+    ]);
+
+    return redirect()->route('home')->with('success', 'Livre ajouté avec succès !');
+}
+
 
 }

@@ -19,6 +19,10 @@ class Book extends Model
         'image', // si tu gères les images
     ];
 
+    protected $casts = [
+        'available' => 'integer',
+    ];
+
 public function favoritedBy()
 {
     return $this->belongsToMany(User::class, 'favorites')->withTimestamps();

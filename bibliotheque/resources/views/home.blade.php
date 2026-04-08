@@ -54,7 +54,7 @@ nav a:hover{
   max-width:1200px;
   margin:20px auto;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  grid-template-columns: repeat(4, 1fr); /* 4 cartes par ligne */
   gap:20px;
 }
 

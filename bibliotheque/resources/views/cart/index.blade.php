@@ -106,7 +106,7 @@ Total : {{ $total }} €
     @foreach($cartItems as $item)
         <input type="hidden" name="quantities[{{ $item->id }}]" id="quantity-hidden-{{ $item->id }}" value="{{ $item->quantity }}">
     @endforeach
-    <button type="submit">Emprunter (1 jour max)</button>
+    <button type="submit">Emprunter</button>
 </form>
 </div>
 
