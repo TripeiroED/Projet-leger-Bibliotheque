@@ -40,5 +40,7 @@
     <a href="{{ url('/profile') }}">Retour au profil</a>
 </div>
 
+@include('partials.footer')
+
 </body>
 </html>

@@ -191,5 +191,7 @@ tr:nth-child(even){
 
 </div>
 
+@include('partials.footer')
+
 </body>
 </html>

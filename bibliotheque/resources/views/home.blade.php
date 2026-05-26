@@ -16,6 +16,9 @@
 body{
   background:#f0f2f5;
   color:#333;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
 header{
@@ -56,6 +59,7 @@ nav a:hover{
   display:grid;
   grid-template-columns: repeat(4, 1fr); /* 4 cartes par ligne */
   gap:20px;
+  flex:1;
 }
 
 .book{
@@ -209,6 +213,18 @@ button:hover{
     color:#ff4081;
 }
 
+@media (max-width: 1024px){
+  .container{
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px){
+  .container{
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 
@@ -336,6 +352,8 @@ button:hover{
 @endif
 
 </div>
+
+@include('partials.footer')
 
 <script>
 // Gestion AJAX panier

@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inscription - Bibliothèque</title>
+<title>Inscription - Bibliotheque</title>
 <style>
-/* === Reset & Base === */
 * {
     margin: 0;
     padding: 0;
@@ -16,13 +15,20 @@
 body {
     background: #f0f2f5;
     color: #333;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    padding: 40px 20px;
 }
 
-/* === Form container === */
 .register-container {
     background: white;
     padding: 40px 30px;
@@ -38,7 +44,6 @@ body {
     margin-bottom: 25px;
 }
 
-/* === Input fields === */
 .register-container input {
     width: 100%;
     padding: 12px 15px;
@@ -54,7 +59,6 @@ body {
     outline: none;
 }
 
-/* === Button === */
 .register-container button {
     width: 100%;
     padding: 12px;
@@ -72,7 +76,6 @@ body {
     transform: scale(1.02);
 }
 
-/* === Error messages === */
 .errors {
     margin-bottom: 15px;
     text-align: left;
@@ -83,7 +86,6 @@ body {
     font-size: 13px;
 }
 
-/* === Link === */
 .register-container a {
     display: inline-block;
     margin-top: 10px;
@@ -97,7 +99,6 @@ body {
     text-decoration: underline;
 }
 
-/* === Responsive === */
 @media(max-width: 480px) {
     .register-container {
         padding: 30px 20px;
@@ -106,29 +107,30 @@ body {
 </style>
 </head>
 <body>
+<main class="page-content">
+    <div class="register-container">
+        <h2>Creer un compte</h2>
 
-<div class="register-container">
-    <h2>Créer un compte</h2>
+        @if($errors->any())
+        <div class="errors">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+        @endif
 
-    @if($errors->any())
-    <div class="errors">
-        @foreach($errors->all() as $error)
-            <p>{{ $error }}</p>
-        @endforeach
+        <form method="POST" action="/register">
+            @csrf
+            <input type="text" name="name" placeholder="Nom complet" value="{{ old('name') }}">
+            <input type="email" name="email" placeholder="Email" value="{{ old('email') }}">
+            <input type="password" name="password" placeholder="Mot de passe">
+            <input type="password" name="password_confirmation" placeholder="Confirmer mot de passe">
+            <button type="submit">S'inscrire</button>
+        </form>
+
+        <p>Deja un compte ? <a href="/login">Connexion</a></p>
     </div>
-    @endif
-
-    <form method="POST" action="/register">
-        @csrf
-        <input type="text" name="name" placeholder="Nom complet" value="{{ old('name') }}">
-        <input type="email" name="email" placeholder="Email" value="{{ old('email') }}">
-        <input type="password" name="password" placeholder="Mot de passe">
-        <input type="password" name="password_confirmation" placeholder="Confirmer mot de passe">
-        <button type="submit">S'inscrire</button>
-    </form>
-
-    <p>Déjà un compte ? <a href="/login">Connexion</a></p>
-</div>
-
+</main>
+@include('partials.footer')
 </body>
 </html>

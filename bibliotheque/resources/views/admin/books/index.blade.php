@@ -160,6 +160,7 @@
                 @endforelse
             </tbody>
         </table>
+
     </div>
 
 </body>

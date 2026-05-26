@@ -4,10 +4,26 @@
 <meta charset="UTF-8">
 <title>Connexion</title>
 <style>
-body { background:#f0f2f5; font-family:'Segoe UI'; }
+body {
+    background:#f0f2f5;
+    font-family:'Segoe UI', sans-serif;
+    min-height:100vh;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+}
+.page-content {
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+}
 .form-container {
-    width:350px; margin:100px auto;
-    background:white; padding:30px;
+    width:100%;
+    max-width:350px;
+    background:white;
+    padding:30px;
     border-radius:10px;
     box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
@@ -20,16 +36,19 @@ a:hover { color:#104e8b; }
 </style>
 </head>
 <body>
-<div class="form-container">
-<h1>Connexion</h1>
-@if(session('error')) <p style="color:red">{{ session('error') }}</p> @endif
-<form method="POST" action="/login">
-@csrf
-<input type="email" name="email" placeholder="Email" required>
-<input type="password" name="password" placeholder="Mot de passe" required>
-<button>Connexion</button>
-</form>
-<a href="/register">Créer un compte</a>
-</div>
+<main class="page-content">
+    <div class="form-container">
+    <h1>Connexion</h1>
+    @if(session('error')) <p style="color:red">{{ session('error') }}</p> @endif
+    <form method="POST" action="/login">
+    @csrf
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Mot de passe" required>
+    <button>Connexion</button>
+    </form>
+    <a href="/register">Creer un compte</a>
+    </div>
+</main>
+@include('partials.footer')
 </body>
 </html>

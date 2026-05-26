@@ -203,5 +203,7 @@ Retard de {{ $borrow->due_at->diffInDays($now) }} jour(s)
 
 </div>
 
+@include('partials.footer')
+
 </body>
 </html>

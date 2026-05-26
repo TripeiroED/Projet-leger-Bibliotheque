@@ -35,5 +35,6 @@ a:hover { background:#104e8b; }
 </div>
 @endforeach
 </div>
+@include('partials.footer')
 </body>
 </html>

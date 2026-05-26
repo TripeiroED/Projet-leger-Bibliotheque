@@ -164,6 +164,7 @@ document.getElementById('borrow-form').addEventListener('submit', function(e) {
 });
 </script>
 
+@include('partials.footer')
 
 </body>
 </html>
