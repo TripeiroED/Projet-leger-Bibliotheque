@@ -1,59 +1,126 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bibliothèque — Application de gestion de bibliothèque
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application web de gestion de bibliothèque développée avec **Laravel 12**.
+Elle permet aux utilisateurs de parcourir un catalogue de livres, de les ajouter
+à un panier, de les emprunter (avec une date de retour) et de gérer leurs
+favoris. Une interface d'administration permet de gérer le catalogue, les
+utilisateurs et le suivi des emprunts.
 
-## About Laravel
+## Fonctionnalités
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Côté utilisateur
+- **Catalogue & recherche** : consultation et recherche des livres disponibles.
+- **Panier** : ajout de livres, modification des quantités, paiement.
+- **Emprunts** : emprunt d'un ou plusieurs exemplaires avec une **date de retour
+  fixée à 14 jours**, dans la limite du stock disponible.
+- **Favoris** : ajout/retrait de livres dans une liste personnelle.
+- **Historique** : suivi des emprunts passés et du nombre total de livres
+  empruntés.
+- **Profil** : consultation et modification des informations personnelles.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Côté administrateur
+- **Tableau de bord** d'administration.
+- **Gestion des livres** (CRUD complet) avec image, prix et stock.
+- **Gestion des utilisateurs** (CRUD complet).
+- **Suivi des emprunts** de l'ensemble des utilisateurs.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Authentification & sécurité
+- Inscription / connexion / déconnexion.
+- **Vérification d'email obligatoire** pour activer un compte.
+- **Limitation du nombre de tentatives** de connexion (rate limiting).
+- **Gestion des rôles** (`admin` / `user`) via middleware.
+- Mots de passe hachés et protection CSRF (Blade).
 
-## Learning Laravel
+## Stack technique
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| Élément        | Technologie                          |
+| -------------- | ------------------------------------ |
+| Framework      | Laravel 12 (PHP 8.2+)                |
+| Base de données| Eloquent ORM (SQLite / MySQL)        |
+| Vues           | Blade                                |
+| Front-end      | Tailwind CSS 4, Vite, Axios          |
+| Tests          | PHPUnit                              |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Modèle de données
 
-## Laravel Sponsors
+- **User** — utilisateur (champ `role` pour distinguer admin / user).
+- **Book** — livre (titre, auteur, description, prix, stock `available`, image).
+- **Borrow** — emprunt (`user_id`, `book_id`, `quantity`, `borrowed_at`,
+  `due_at`, `returned_at`, `paid`).
+- **Cart** — ligne de panier (`user_id`, `book_id`, `quantity`).
+- **Favorite** — favori liant un utilisateur à un livre (table pivot).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Relations principales :
+- `User` 1—N `Borrow`, `User` N—N `Book` (favoris), `User` 1—N `Cart`.
+- `Book` N—N `User` (favoris), `Book` 1—N `Borrow`.
 
-### Premium Partners
+## Installation
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Prérequis
+- PHP **8.2+** avec les extensions `mbstring`, `xml`, `curl`, `sqlite3` (ou
+  `mysql`).
+- [Composer](https://getcomposer.org/)
+- [Node.js](https://nodejs.org/) & npm
 
-## Contributing
+### Étapes
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# 1. Installer les dépendances PHP et JS
+composer install
+npm install
 
-## Code of Conduct
+# 2. Créer le fichier d'environnement et générer la clé d'application
+cp .env.example .env
+php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3. (SQLite) Créer le fichier de base de données
+touch database/database.sqlite
+# puis dans .env :  DB_CONNECTION=sqlite  et  DB_DATABASE=database/database.sqlite
 
-## Security Vulnerabilities
+# 4. Lancer les migrations
+php artisan migrate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 5. Compiler les assets front-end
+npm run build      # ou `npm run dev` en développement
 
-## License
+# 6. Démarrer le serveur
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+L'application est alors accessible sur http://localhost:8000.
+
+> Pour que la vérification d'email fonctionne en local, configurez `MAIL_*`
+> dans `.env` (par défaut, les emails sont écrits dans les logs via
+> `MAIL_MAILER=log`).
+
+## Tests
+
+Les tests utilisent une base de données **SQLite en mémoire**
+(`DB_DATABASE=:memory:`, configurée dans `phpunit.xml`) : ils **ne modifient
+jamais la base de données réelle**.
+
+```bash
+# Tous les tests
+php artisan test
+
+# Uniquement les tests unitaires
+php artisan test --testsuite=Unit
+```
+
+Les tests unitaires (`tests/Unit/`) couvrent la logique des modèles :
+casts d'attributs, champs assignables, hachage des mots de passe, masquage des
+champs sensibles et relations Eloquent.
+
+## Structure du projet
+
+```
+app/
+  Http/Controllers/   Logique (auth, livres, emprunts, panier, admin)
+  Models/             Book, Borrow, Cart, Favorite, User
+database/
+  migrations/         Schéma de la base de données
+  factories/          Factories pour les tests
+resources/views/      Templates Blade (home, auth, cart, user, admin)
+routes/web.php        Définition des routes
+tests/                Tests unitaires et fonctionnels
+```
