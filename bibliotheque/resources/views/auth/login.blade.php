@@ -49,6 +49,6 @@ a:hover { color:#104e8b; }
     <a href="/register">Creer un compte</a>
     </div>
 </main>
-@include('partials.footer')
+
 </body>
 </html>

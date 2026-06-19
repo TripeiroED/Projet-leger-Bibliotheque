@@ -131,6 +131,6 @@ body {
         <p>Deja un compte ? <a href="/login">Connexion</a></p>
     </div>
 </main>
-@include('partials.footer')
+
 </body>
 </html>

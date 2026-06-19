@@ -70,12 +70,13 @@ button:hover{background:#104e8b;transform:scale(1.05);}
 <td>{{ $item->book->title }}</td>
 <td>{{ $item->book->price }} €</td>
 <td>
-<input type="number"
+<input type="text"
+       class="quantity-input"
        name="quantity-{{ $item->id }}"
        value="{{ $item->quantity }}"
-       min="1"
-       max="{{ $item->book->available }}"
-       oninput="if(this.value > this.max) this.value = this.max;">
+       data-id="{{ $item->id }}"
+       data-max="{{ $item->book->available }}"
+       style="width:60px;padding:5px;border-radius:5px;border:1px solid #ccc;">
 </td>
 <td>
 <form method="POST" action="{{ route('cart.remove',$item->id) }}">
@@ -118,27 +119,24 @@ const cartItems = @json($cartItems->pluck('id')->all());
 
 // Fonction pour valider et mettre à jour la quantité
 function updateQuantity(id) {
-    const inputVisible = document.querySelector(`input[name="quantity-${id}"]`);
-    const inputHidden  = document.getElementById(`quantity-hidden-${id}`);
+    const input = document.querySelector(`input[name="quantity-${id}"]`);
+    const max = parseInt(input.getAttribute('data-max'));
 
-    let value = parseInt(inputVisible.value);
-    const min = parseInt(inputVisible.min);
-    const max = parseInt(inputVisible.max);
+    let value = parseInt(input.value);
 
-    if (isNaN(value) || value < min) {
-        value = min;
+    if (isNaN(value) || value < 1) {
+        value = 1;
     } else if (value > max) {
         value = max;
     }
 
-    inputVisible.value = value; // met à jour l'input visible
-    inputHidden.value  = value; // met à jour l'input caché
+    input.value = value;
 }
 
 // Attache un listener sur chaque input visible
 cartItems.forEach(id => {
-    const inputVisible = document.querySelector(`input[name="quantity-${id}"]`);
-    inputVisible.addEventListener('input', () => updateQuantity(id));
+    const input = document.querySelector(`input[name="quantity-${id}"]`);
+    input.addEventListener('input', () => updateQuantity(id));
 });
 
 // Avant l'envoi du formulaire, vérifie toutes les quantités
@@ -146,14 +144,21 @@ document.getElementById('borrow-form').addEventListener('submit', function(e) {
     let errors = [];
 
     cartItems.forEach(id => {
-        updateQuantity(id); // assure que hidden = visible
-        const inputVisible = document.querySelector(`input[name="quantity-${id}"]`);
-        const value = parseInt(inputVisible.value);
-        const min = parseInt(inputVisible.min);
-        const max = parseInt(inputVisible.max);
+        const input = document.querySelector(`input[name="quantity-${id}"]`);
+        const hiddenInput = document.getElementById(`quantity-hidden-${id}`);
+        const max = parseInt(input.getAttribute('data-max'));
+        
+        updateQuantity(id); // assure que la valeur est valide
+        
+        const value = parseInt(input.value);
+        
+        // Copie la valeur vers l'input caché
+        if (hiddenInput) {
+            hiddenInput.value = value;
+        }
 
-        if (value < min || value > max) {
-            errors.push(`Le livre #${id} doit avoir une quantité entre ${min} et ${max}.`);
+        if (value < 1 || value > max) {
+            errors.push(`Le livre #${id} doit avoir une quantité entre 1 et ${max}.`);
         }
     });
 
